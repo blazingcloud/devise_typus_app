@@ -10,7 +10,7 @@ vi config/routes.rb
 # add root 
 rm public/index.html 
 
-# add device to Gemfile
+# add devise to Gemfile
 bundle
 rails generate devise:install
 # follow instructions
@@ -24,3 +24,75 @@ app/controllers/messages_controller.rb
 class MessagesController < ApplicationController
   before_filter :authenticate_user!, :except => [:show, :index]
 
+
+# add typus to Gemfile
+bundle
+rails generate typus
+
+rails generate typus:migration -u User
+      insert  app/models/user.rb
+      create  config/initializers/typus_authentication.rb
+      create  config/typus/typus.yml
+      create  config/typus/typus_roles.yml
+   identical  app/controllers/admin/users_controller.rb
+      invoke  rspec
+   identical    spec/controllers/admin/users_controller_spec.rb
+      create  db/migrate/20110215065356_create_users.rb
+
+
+
+cat db/migrate/20110215065356_create_users.rb
+class CreateUsers < ActiveRecord::Migration
+
+  def self.up
+    create_table :users do |t|
+      t.string :first_name, :default => "", :null => false
+      t.string :last_name, :default => "", :null => false
+      t.string :role, :null => false
+      t.string :email, :null => false
+      t.boolean :status, :default => false
+      t.string :token, :null => false
+      t.string :salt, :null => false
+      t.string :crypted_password, :null => false
+      t.string :preferences
+      t.timestamps
+    end
+    add_index :users, :email, :unique => true
+  end
+
+  def self.down
+    drop_table :users
+  end
+
+
+
+
+SQLite3::SQLException: Cannot add a NOT NULL column with default value NULL: ALTER TABLE "users" ADD "role" varchar(255) NOT NULL
+
+
+class CreateUsers < ActiveRecord::Migration
+
+  def self.up
+    add_column :users, :first_name, :string, :default => "" #, :null => false
+    add_column :users, :last_name, :string, :default => "" #, :null => false
+    add_column :users, :role, :string #, :null => false
+    add_column :users, :status, :boolean, :default => false
+    add_column :users, :token, :string #, :null => false
+    add_column :users, :salt, :string #, :null => false
+    add_column :users, :crypted_password, :string #, :null => false
+    add_column :users, :preferences, :string
+  end
+
+  def self.down
+    drop_table :users
+  end
+
+end
+
+
+in the user model I had to remove the attr_accessible
+  #attr_accessible :email, :password, :password_confirmation, :remember_me
+
+WARNING: Can't mass-assign protected attributes: role, preferences
+
+Maybe I could have opened those instead
