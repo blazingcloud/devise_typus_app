@@ -18,3 +18,9 @@ rails generate devise User
 # leave as default setup
 rake db:migrate
 
+To require authentication for writing/creating:
+
+app/controllers/messages_controller.rb
+class MessagesController < ApplicationController
+  before_filter :authenticate_user!, :except => [:show, :index]
+
